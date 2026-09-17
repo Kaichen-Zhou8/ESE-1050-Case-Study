@@ -1,4 +1,4 @@
-
+disp("Hello World")
 clear all;
 close all;
 
