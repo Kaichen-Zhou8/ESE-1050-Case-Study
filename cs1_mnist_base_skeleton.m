@@ -145,13 +145,11 @@ end
 
 function new_centroids = update_Centroids(data,K)
 
-  new_centroids = zeros(K, size(data,2));
+  new_centroids = randi(K, 784); % initialize new centroids to random values
   for i=1:K
     cluster_data=data(data(:,end)==i,1:end-1);
     if ~isempty(cluster_data)
       new_centroids(i,:) = mean(cluster_data,1);
-    else
-      new_centroids(i,:) = zeros(1,size(data,2)-1);
     end
   end  
 end
