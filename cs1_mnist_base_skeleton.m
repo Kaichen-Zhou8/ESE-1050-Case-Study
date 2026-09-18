@@ -21,10 +21,10 @@ close all;
 % These next lines of code read in two sets of MNIST digits that will be used for training and testing respectively.
 
 % training set (1500 images)
-train=csvread('mnist_train_1500.csv');
+train = csvread('mnist_train_1500.csv');
 trainsetlabels = train(:,785);
-train=train(:,1:784);
-train(:,785)=zeros(1500,1);
+train = train(:,1:784);
+train(:,785) = zeros(1500,1);
 
 % testing set (200 images with 11 outliers)
 test=csvread('mnist_test_200_woutliers.csv');
@@ -35,7 +35,7 @@ test=test(:,1:784);
 % now, zero out the labels in "test" so that you can use this to assign
 % your own predictions and evaluate against "correctlabels"
 % in the 'cs1_mnist_evaluate_test_set.m' script
-test(:,785)=zeros(200,1);
+test(:,785)=zeros(200,1);-
 
 %% After initializing, you will have the following variables in your workspace:
 % 1. train (a 1500 x 785 array, containins the 1500 training images)
