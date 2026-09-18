@@ -27,7 +27,7 @@ train = train(:,1:784);
 train(:,785) = zeros(1500,1);
 
 % testing set (200 images with 11 outliers)
-test=csvread('mnist_test_200_woutliers.csv');
+test=csvread('mnist_test_200.csv');
 % store the correct test labels
 correctlabels = test(:,785);
 test=test(:,1:784);
@@ -35,7 +35,7 @@ test=test(:,1:784);
 % now, zero out the labels in "test" so that you can use this to assign
 % your own predictions and evaluate against "correctlabels"
 % in the 'cs1_mnist_evaluate_test_set.m' script
-test(:,785)=zeros(200,1);-
+test(:,785)=zeros(200,1);
 
 %% After initializing, you will have the following variables in your workspace:
 % 1. train (a 1500 x 785 array, containins the 1500 training images)
@@ -61,9 +61,11 @@ imagesc(testimage'); % this command plots an array as an image.  Type 'help imag
 % since there are no clusters yet established.
 
 %% This next section of code calls the three functions you are asked to specify
-
-k= ; % set k
-max_iter= ; % set the number of iterations of the algorithm
+% k=15 was chosen because k=10 left some digits unrepresented
+% among the centroids. k=15 covered all 10 digit classes (0-9)
+% with a reasonable amount of centroids to label.
+k= 15; % set k
+max_iter= 20; % set the number of iterations of the algorithm
 
 %% The next line initializes the centroids.  Look at the initialize_centroids()
 % function, which is specified further down this file.
@@ -77,10 +79,16 @@ cost_iteration = zeros(max_iter, 1);
 %% This for-loop enacts the k-means algorithm
 
 for iter=1:max_iter
+  % reset cost counter for this iteration
+  total_cost = 0;
   for i=1:1500
       [index, vec_distance] = assign_vector_to_centroid(train(i,:),centroids);
       train(i,785) = index;
+      % accumulate squared distance for this point
+      total_cost = total_cost + vec_distance;
   end
+  % save this iteration's total cost
+  cost_iteration(iter) = total_cost;
   centroids=update_centroids(train,k);
 end
 
@@ -89,7 +97,12 @@ end
 % of iterations
 
 figure;
-% FILL THIS IN!
+
+plot(1:max_iter, cost_iteration, '-o');
+xlabel('Iteration');
+ylabel('K-means Cost (Sum of Squared Distances)');
+title('K-means Cost vs. Iteration');
+grid on;
 
 
 %% This next section of code will make a plot of all of the centroids
@@ -156,13 +169,16 @@ end
 % training images.
 
 function new_centroids = update_centroids(data,K)
-  new_centroids = randi([0 255],K, size(data,2)-1); % initialize new centroids to random values
+  % initialize new centroids to random values
+  new_centroids = randi([0 255],K, size(data,2)-1); 
   for i=1:K
     cluster_data=data(data(:,end)==i,1:end-1);
     if ~isempty(cluster_data)
+      % centroid is the average of its assigned images
       new_centroids(i,:) = mean(cluster_data,1);
     else
       random_row = randi(size(data,1));
+      % if cluster is empty, reset to a random training image
       new_centroids(i,:) = data(random_row,1:end-1);
     end
   end  
