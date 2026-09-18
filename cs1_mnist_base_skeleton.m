@@ -1,4 +1,4 @@
-disp("Hello World")
+
 clear all;
 close all;
 
@@ -130,9 +130,11 @@ end
 % the vector and the assigned centroid.
 
 function [index, vec_distance] = assign_vector_to_centroid(data,centroids)
-
-% FILL THIS IN
-
+  distances = zeros(size(centroids,1),1);
+  for i=1:size(centroids,1)
+    distances(i)=(norm(data-centroids(i,:)))^2;
+  end
+  [vec_distance, index] = min(distances);
 end
 
 
@@ -141,8 +143,15 @@ end
 % It returns a new set of centroids based on the current assignment of the
 % training images.
 
-function new_centroids=update_Centroids(data,K)
+function new_centroids = update_Centroids(data,K)
 
-% FILL THIS IN
-
+  new_centroids = zeros(K, size(data,2));
+  for i=1:K
+    cluster_data=data(data(:,end)==i,1:end-1);
+    if ~isempty(cluster_data)
+      new_centroids(i,:) = mean(cluster_data,1);
+    else
+      new_centroids(i,:) = zeros(1,size(data,2)-1);
+    end
+  end  
 end
