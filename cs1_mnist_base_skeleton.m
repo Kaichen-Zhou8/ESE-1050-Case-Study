@@ -77,10 +77,13 @@ cost_iteration = zeros(max_iter, 1);
 %% This for-loop enacts the k-means algorithm
 
 for iter=1:max_iter
-    
-      % FILL THIS IN!
-    
+  for i=1:1500
+      [index, vec_distance] = assign_vector_to_centroid(train(i,:),centroids);
+      train(i,785) = index;
+  end
+  centroids=update_centroids(train,k);
 end
+
 
 %% This section of code plots the k-means cost as a function of the number
 % of iterations
@@ -135,6 +138,7 @@ end
 % the vector and the assigned centroid.
 
 function [index, vec_distance] = assign_vector_to_centroid(data,centroids)
+  data=data(:,1:end-1);
   distances = zeros(size(centroids,1),1);
   for i=1:size(centroids,1)
     distances(i)=(norm(data-centroids(i,:)))^2; 
@@ -151,7 +155,7 @@ end
 % It returns a new set of centroids based on the current assignment of the
 % training images.
 
-function new_centroids = update_Centroids(data,K)
+function new_centroids = update_centroids(data,K)
   new_centroids = randi([0 255],K, size(data,2)-1); % initialize new centroids to random values
   for i=1:K
     cluster_data=data(data(:,end)==i,1:end-1);
