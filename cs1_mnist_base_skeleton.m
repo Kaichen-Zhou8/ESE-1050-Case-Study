@@ -114,7 +114,9 @@ end
 % ***Feel free to experiment.***
 % Note that this function takes two inputs and emits one output (y).
 
+
 function y=initialize_centroids(data,num_centroids)
+data=data(:,1:end-1);
 
 random_index=randperm(size(data,1));
 
@@ -123,6 +125,9 @@ centroids=data(random_index(1:num_centroids),:);
 y=centroids;
 
 end
+% The input of the function is as follows:
+% Input 1: it should basically always be the training set (train), no need to for any indexing or modification of the training set.
+% Input 2: the number of centroids (k)
 
 %% Function to pick the Closest Centroid using norm/distance
 % This function takes two arguments, a vector and a set of centroids
@@ -132,11 +137,14 @@ end
 function [index, vec_distance] = assign_vector_to_centroid(data,centroids)
   distances = zeros(size(centroids,1),1);
   for i=1:size(centroids,1)
-    distances(i)=(norm(data-centroids(i,:)))^2;
+    distances(i)=(norm(data-centroids(i,:)))^2; 
+    % Making an array of distances (squared norm) between vectors and centroids
   end
   [vec_distance, index] = min(distances);
 end
-
+%The input of the function is as follows:
+% Input 1: a vector (a row of the training set): train(i,:)
+% Input 2: the set of centroids (centroids)
 
 %% Function to compute new centroids using the mean of the vectors currently assigned to the centroid.
 % This function takes the set of training images and the value of k.
@@ -144,12 +152,14 @@ end
 % training images.
 
 function new_centroids = update_Centroids(data,K)
-
-  new_centroids = randi(K, 784); % initialize new centroids to random values
+  new_centroids = randi([0 255],K, size(data,2)-1); % initialize new centroids to random values
   for i=1:K
     cluster_data=data(data(:,end)==i,1:end-1);
     if ~isempty(cluster_data)
       new_centroids(i,:) = mean(cluster_data,1);
+    else
+      random_row = randi(size(data,1));
+      new_centroids(i,:) = data(random_row,1:end-1);
     end
   end  
 end
