@@ -64,7 +64,7 @@ imagesc(testimage'); % this command plots an array as an image.  Type 'help imag
 % k=15 was chosen because k=10 left some digits unrepresented
 % among the centroids. k=15 covered all 10 digit classes (0-9)
 % with a reasonable amount of centroids to label.
-k= 15; % set k
+k= 20; % set k
 max_iter= 20; % set the number of iterations of the algorithm
 
 %% The next line initializes the centroids.  Look at the initialize_centroids()
@@ -97,12 +97,12 @@ end
 % of iterations
 
 figure;
-
 plot(1:max_iter, cost_iteration, '-o');
 xlabel('Iteration');
 ylabel('K-means Cost (Sum of Squared Distances)');
 title('K-means Cost vs. Iteration');
 grid on;
+yscale('log');
 
 
 %% This next section of code will make a plot of all of the centroids
@@ -124,6 +124,19 @@ for ind=1:k
 
 end
 
+centroid_labels = zeros(k,1);
+for i=1:k
+    cluster_data=train(train(:,785)==i,1:end-1);
+    if ~isempty(cluster_data)
+        centroid_labels(i) = mode(trainsetlabels(train(:,785)==i));
+    else
+        centroid_labels(i) = -1; % indicate no label assigned
+    end
+end
+disp('Centroid Labels:');
+for i=1:k
+    fprintf('Centroid %d: Label %d\n', i, centroid_labels(i));
+end
 %% Function to initialize the centroids
 % This function randomly chooses k vectors from our training set and uses them to be our initial centroids
 % There are other ways you might initialize centroids.
