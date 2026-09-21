@@ -6,26 +6,15 @@
 % 2)'centroids' be established in the workspace
 % AND
 % 3)'test' be established in the workspace
-% testing set (200 images with 11 outliers)
-test=csvread('mnist_test_200.csv');
-% store the correct test labels
-correctlabels = test(:,785);
-test=test(:,1:784);
 
 
 % IMPORTANT!!:
 % You should save 1) and 2) in a file named 'classifierdata.mat' as part of
 % your submission.
-load ('classifierdata.mat');
+
 predictions = zeros(200,1);
-<<<<<<< HEAD
-outliers = zeros(200,1);
-distances = zeros(200,1);
-k=size(centroids,1);
-=======
 
 
->>>>>>> 7447954 (Add multi-restart k-means, confusion analysis, and k sweep)
 % loop through the test set, figure out the predicted number
 for i = 1:200
 
@@ -35,51 +24,24 @@ testing_vector=test(i,:);
 [prediction_index, vec_distance]=assign_vector_to_centroid(testing_vector,centroids);
 
 predictions(i) = centroid_labels(prediction_index);
-distances(i) = vec_distance;
 
 end
 
 %% DESIGN AND IMPLEMENT A STRATEGY TO SET THE outliers VECTOR
-<<<<<<< HEAD
-for i = 1:200
-    if distances(i) > 4.1*10^6
-        outliers(i) = 1;
-    end
-end
-
-=======
 % outliers(i) should be set to 1 if the i^th entry is an outlier
 % otherwise, outliers(i) should be 0
 % flag samples with pixel values outside the valid MNIST range [0, 255]
 outliers = any(test(:,1:784) < 0 | test(:,1:784) > 255, 2);
->>>>>>> 7447954 (Add multi-restart k-means, confusion analysis, and k sweep)
 
 %% MAKE A STEM PLOT OF THE OUTLIER FLAG
 % plot the detected outlier flags
 figure;
-<<<<<<< HEAD
-stem(outliers);
-figure
-colormap('gray');
-plotsize = ceil(sqrt(k));
-plot_ind=1;
-for ind=1:200    
-    if outliers(ind) == 1
-        outlier_image=test(ind,:);
-        subplot(plotsize,plotsize,plot_ind);
-        imagesc(reshape(outlier_image,[28 28])');
-        title(strcat('Outlier at:',num2str(ind)))
-        plot_ind = plot_ind + 1;
-    end
-end
-=======
 stem(1:200, outliers, 'filled');
 xlabel('Test image index');
 ylabel('Outlier flag');
 title('Outlier Detection');
 ylim([-0.1 1.1]);
 grid on;
->>>>>>> 7447954 (Add multi-restart k-means, confusion analysis, and k sweep)
 
 %% The following plots the correct and incorrect predictions
 % Make sure you understand how this plot is constructed
@@ -97,22 +59,8 @@ grid on;
 %% The following line provides the number of instances where and entry in correctlabel is
 % equal to the corresponding entry in prediction
 % However, remember that some of these are outliers
-disp("Correct predictions out of 200: " + sum(correctlabels==predictions));
-disp("Number of outliers: " + sum(outliers));
-disp("Average distance to closest centroid: " + mean(distances));
-figure
-bar (distances);
-yscale('log');
+sum(correctlabels==predictions)
 
-<<<<<<< HEAD
-function [index, vec_distance] = assign_vector_to_centroid(data,centroids)
-  distances = zeros(size(centroids,1),1);
-  for i=1:size(centroids,1)
-    distances(i)=(norm(data-centroids(i,:)))^2; 
-    % Making an array of distances (squared norm) between vectors and centroids
-  end
-  [vec_distance, index] = min(distances);
-=======
 % print the accuracy/outlier outputs
 normal_correct = sum(correctlabels(~outliers) == predictions(~outliers));
 normal_total = sum(~outliers);
@@ -132,7 +80,6 @@ for i = 1:200
         c = predictions(i) + 1;
         confusion(r,c) = confusion(r,c) + 1;
     end
->>>>>>> 7447954 (Add multi-restart k-means, confusion analysis, and k sweep)
 end
 
 disp(' ');
