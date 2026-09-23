@@ -67,7 +67,7 @@ imagesc(testimage'); % this command plots an array as an image.  Type 'help imag
 k= 30; % set k
 max_iter= 20; % set the number of iterations of the algorithm
 % k-means only finds a local optimum, so we try several random starts
-num_restarts = 5;
+num_restarts = 15;
 
 %% This section runs k-means num_restarts times and keeps the best start
 % each start converges somewhere different, we keep the lowest cost one
@@ -166,7 +166,7 @@ for i=1:k
 end
 disp('Centroid Labels:');
 for i=1:k
-    fprintf('Centroid %d: Label %d\n', i, centroid_labels(i));
+    fprintf('Centroid %d: Label %d Assigned Vectors: %d\n', i, centroid_labels(i), sum(train(:,785)==i));
 end
 
 %% Save the classifier data for the competition phase

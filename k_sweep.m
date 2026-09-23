@@ -27,7 +27,7 @@ outliers = any(test(:,1:784) < 0 | test(:,1:784) > 255, 2);
 
 %% Sweep settings
 % add or remove k values here, nothing below needs editing
-k_values = [10 20 30 40 50];
+k_values = [10 20 30 40 50 60 70 80 90 100];
 % how many random starts to try for each k
 num_restarts = 5;
 max_iter = 20;
