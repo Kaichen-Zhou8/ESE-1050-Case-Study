@@ -133,7 +133,7 @@ xlabel('Iteration');
 ylabel('K-means Cost (Sum of Squared Distances)');
 title('K-means Cost vs. Iteration');
 grid on;
-set(gca,'YScale','log');
+
 
 
 %% This next section of code will make a plot of all of the centroids
@@ -149,8 +149,9 @@ for ind=1:k
 
     centr=centroids(ind,[1:784]);
     subplot(plotsize,plotsize,ind);
-
     imagesc(reshape(centr,[28 28])');
+    axis image;
+    axis off;
     title(strcat('Centroid ',num2str(ind)))
 
 end
