@@ -1,4 +1,3 @@
-
 clear all;
 close all;
 rng(1);
@@ -6,6 +5,7 @@ rng(1);
 %% Compare several k values, with multiple restarts for each
 % k-means depends on where the centroids start, so a single run can be bad
 % for each k we try several starts and keep the one with the lowest cost
+% this script only explores k, the final model is saved by the base skeleton
 
 %% Initialize Data Set
 % same data setup as the base skeleton
@@ -27,16 +27,16 @@ outliers = any(test(:,1:784) < 0 | test(:,1:784) > 255, 2);
 
 %% Sweep settings
 % add or remove k values here, nothing below needs editing
-k_values = [10 20 30 40 50 60 70 80 90 100];
+k_values = 10:10:120;
 % how many random starts to try for each k
 num_restarts = 5;
 max_iter = 20;
 
 accuracies = zeros(length(k_values),1);
 best_costs = zeros(length(k_values),1);
-% keep the best model for each k so it can be saved later
-best_centroids_all = cell(length(k_values),1);
-best_labels_all = cell(length(k_values),1);
+% track how small the clusters get as k grows
+min_cluster = zeros(length(k_values),1);
+small_clusters = zeros(length(k_values),1);
 
 %% Main sweep
 for kk = 1:length(k_values)
@@ -74,7 +74,7 @@ for kk = 1:length(k_values)
             best_assignments = train(:,785);
         end
 
-        fprintf('  k = %2d  restart %d/%d  cost = %.4e\n', k, restart, num_restarts, final_cost);
+        fprintf('  k = %3d  restart %d/%d  cost = %.4e\n', k, restart, num_restarts, final_cost);
     end
 
     % give each centroid the most common label among its assigned images
@@ -87,6 +87,11 @@ for kk = 1:length(k_values)
         end
     end
 
+    % count how many training images each centroid ended up with
+    cluster_sizes = accumarray(best_assignments, 1, [k 1]);
+    min_cluster(kk) = min(cluster_sizes);
+    small_clusters(kk) = sum(cluster_sizes < 10);
+
     % classify the test set with the best centroids for this k
     predictions = zeros(200,1);
     for i = 1:200
@@ -97,16 +102,16 @@ for kk = 1:length(k_values)
     % score on the non-outlier images only
     accuracies(kk) = sum(correctlabels(~outliers)==predictions(~outliers)) / sum(~outliers);
     best_costs(kk) = best_cost;
-    best_centroids_all{kk} = best_centroids;
-    best_labels_all{kk} = centroid_labels;
 
-    fprintf('k = %2d : best cost = %.4e, accuracy = %.4f\n\n', k, best_cost, accuracies(kk));
+    fprintf('k = %3d : best cost = %.4e, accuracy = %.4f, smallest cluster = %d\n\n', ...
+            k, best_cost, accuracies(kk), min_cluster(kk));
 end
 
 %% Print the summary table for the report
-disp('   k      best cost      accuracy');
+disp('   k      best cost      accuracy   smallest   under 10');
 for kk = 1:length(k_values)
-    fprintf('%4d   %.4e   %.4f\n', k_values(kk), best_costs(kk), accuracies(kk));
+    fprintf('%4d   %.4e   %.4f   %6d   %6d\n', k_values(kk), best_costs(kk), ...
+            accuracies(kk), min_cluster(kk), small_clusters(kk));
 end
 
 %% Plot accuracy as a function of k
@@ -117,20 +122,8 @@ ylabel('Accuracy (non-outlier test images)');
 title('Accuracy vs. k');
 grid on;
 
-%% Save the model for the chosen k
-% set this to the k you picked from the plot above
-k_for_submission = 20;
-idx = find(k_values == k_for_submission);
-centroids = best_centroids_all{idx};
-centroid_labels = best_labels_all{idx};
-% pad to 785 columns so the array matches the required k x 785 format
-centroids(:,785) = 0;
-save('classifierdata.mat','centroids','centroid_labels');
-fprintf('classifierdata.mat saved using k = %d\n', k_for_submission);
-
 
 %% Function to initialize the centroids
-% This function randomly chooses k vectors from our training set and uses them to be our initial centroids
 
 function y=initialize_centroids(data,num_centroids)
 data=data(:,1:end-1);
@@ -144,8 +137,8 @@ y=centroids;
 end
 
 %% Function to pick the Closest Centroid using norm/distance
-% This function takes two arguments, a vector and a set of centroids
-% It returns the index of the assigned centroid and the distance between
+% takes two arguments, a vector and a set of centroids
+% returns the index of the assigned centroid and the distance between 
 % the vector and the assigned centroid.
 
 function [index, vec_distance] = assign_vector_to_centroid(data,centroids)
@@ -154,14 +147,14 @@ function [index, vec_distance] = assign_vector_to_centroid(data,centroids)
   distances = zeros(size(centroids,1),1);
   for i = 1:size(centroids,1)
     distances(i) = norm(data - centroids(i,1:784))^2;
-    % Making an array of distances (squared norm) between vectors and centroids
+    % making an array of distances (squared norm) between vectors and centroids
   end
   [vec_distance, index] = min(distances);
 end
 
 %% Function to compute new centroids using the mean of the vectors currently assigned to the centroid.
-% This function takes the set of training images and the value of k.
-% It returns a new set of centroids based on the current assignment of the
+% takes the set of training images and the value of k.
+% returns a new set of centroids based on the current assignment of the
 % training images.
 
 function new_centroids = update_centroids(data,K)
