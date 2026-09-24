@@ -128,12 +128,16 @@ fprintf('best cost = %.4e\n', best_cost);
 % of iterations
 
 figure;
-plot(1:max_iter, cost_iteration, '-o');
+% wide, short window so the plot fits one report column
+set(gcf,'Position',[100 100 700 320]);
+plot(1:max_iter, cost_iteration, '-o','LineWidth',1.5,'MarkerSize',6);
 xlabel('Iteration');
-ylabel('K-means Cost (Sum of Squared Distances)');
+ylabel('Cost');
 title('K-means Cost vs. Iteration');
 grid on;
-
+set(gca,'FontSize',14);
+% save right after plotting so the correct figure is exported
+exportgraphics(gcf,'fig1_cost.png','BackgroundColor','white','Resolution',300);
 
 
 %% This next section of code will make a plot of all of the centroids
@@ -146,15 +150,19 @@ colormap('gray');
 plotsize = ceil(sqrt(k));
 
 for ind=1:k
-
+    
     centr=centroids(ind,[1:784]);
     subplot(plotsize,plotsize,ind);
     imagesc(reshape(centr,[28 28])');
+    % keep each digit square and hide the pixel axes
     axis image;
     axis off;
     title(strcat('Centroid ',num2str(ind)))
 
 end
+% size the window for the report, then save the montage
+set(gcf,'Position',[100 100 600 640]);
+exportgraphics(gcf,'fig2_centroids.png','BackgroundColor','white','Resolution',300);
 
 centroid_labels = zeros(k,1);
 for i=1:k

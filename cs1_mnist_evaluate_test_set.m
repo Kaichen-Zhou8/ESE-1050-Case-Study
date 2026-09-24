@@ -31,6 +31,7 @@ end
 % outliers(i) should be set to 1 if the i^th entry is an outlier
 % otherwise, outliers(i) should be 0
 % flag samples with pixel values outside the valid MNIST range [0, 255]
+% a real MNIST pixel cannot fall outside that range, so one bad pixel is enough
 outliers = any(test(:,1:784) < 0 | test(:,1:784) > 255, 2);
 
 %% MAKE A STEM PLOT OF THE OUTLIER FLAG
@@ -55,6 +56,12 @@ ylabel('Label');
 title('Predictions');
 legend('Correct Labels','Predicted Labels','Location','best');
 grid on;
+% resize for the report and move the legend below the axes so it never covers points
+set(gcf,'Position',[100 100 700 380]);
+legend('Location','southoutside','Orientation','horizontal');
+yticks(0:9);
+set(gca,'FontSize',14);
+exportgraphics(gcf,'fig4_predictions.png','BackgroundColor','white','Resolution',300);
 
 %% The following line provides the number of instances where and entry in correctlabel is
 % equal to the corresponding entry in prediction
